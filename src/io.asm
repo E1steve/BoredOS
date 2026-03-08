@@ -3,12 +3,14 @@ global inb
 ; void inb(uint16_t port)
 inb:
     push ebp
-    mov esp, ebp
+    mov ebp, esp
     
+    xor eax, eax
+
     mov dx, word [ebp+8]
     in al, dx
 
-    pop esp
+    pop ebp
     ret
 
 global outb
