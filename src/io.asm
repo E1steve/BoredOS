@@ -25,3 +25,15 @@ outb:
 
     pop ebp
     ret
+
+global io_wait
+; void io_wait(void);
+io_wait:
+    push ebp
+    mov ebp, esp
+
+    xor al, al
+    out 0x80, al
+
+    pop ebp
+    ret
