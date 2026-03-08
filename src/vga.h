@@ -28,10 +28,19 @@ typedef enum {
 	VGA_WHITE = 15,
 } vga_color;
 
+typedef enum{
+	CRTC_CURSOR_LOW = 0xf,
+	CRTC_CURSOR_HIGH = 0xe,
+	CRTC_CURSOR_CONTROL = 0xa
+} crtc_ports;
+
 void set_term_color(vga_color fg_col, vga_color bg_col);
 void write_char(char character);
 void print_str(char* str);
 void print_byte(uint8_t byte);
 void printf(char* str, ...);
+
+void toggle_cursor();
+void move_cursor(int x, int y);
 
 #endif

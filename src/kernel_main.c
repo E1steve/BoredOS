@@ -10,27 +10,20 @@ void kmain(mboot_tag* mboot_info) {
     reload_segments();
 
     set_term_color(VGA_WHITE, VGA_BLACK);
-
-    print_str("Multiboot headers are: 0x");
-    print_byte((uint8_t)(mboot_info->type & 0xFF));
-    print_str(" bytes long.\n");
-
-    printf("Multiboot headers are: 0x%x bytes long.\n", (uint8_t)(mboot_info->type & 0xFF));
+    toggle_cursor();
 
     // The fist tag is just info about the entire structure
+    printf("Multiboot headers are: 0x%x bytes long.\n", (uint8_t)(mboot_info->type & 0xFF));
     mboot_info++;
     
-    // Parse the mboot structur 
+    // Parse the mboot structure
     while(!(mboot_info->type == 0 && mboot_info->size == 8)){
 
-        print_str("Multiboot tag of type: 0x");
-        print_byte((uint8_t)(mboot_info->type & 0xFF));
-        write_char('\n');
+        printf("Multiboot tag of type: 0x%x\n");
 
         switch(mboot_info->type){
             case MBOOT_TAG_TYPE_BOOT_LOADER_NAME:
-                print_str((char*)(mboot_info+1));
-                write_char('\n');
+                printf("Loaded by:  \n%s\n", (char*)(mboot_info+1));
                 break;
             default:
                 break;

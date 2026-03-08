@@ -1,4 +1,5 @@
 #include "vga.h"
+#include "io.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -7,9 +8,9 @@ static size_t cursor_row;
 static size_t cursor_col;
 static uint8_t color;
 
-term_char* video_mem = (term_char*)0xb8000;
-uint32_t buffer_width = 80;
-uint32_t buffer_height = 25;
+static term_char* video_mem = (term_char*)0xb8000;
+static uint32_t buffer_width = 80;
+static uint32_t buffer_height = 25;
 
 
 static uint8_t hex_lookup[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -45,10 +46,31 @@ void write_char(char character) {
     }
 }
 
+void move_cursor(int x, int y){
+    uint16_t pos = x + y*buffer_width;
+
+    // crtc cursor low
+    outb(0x3d4, CRTC_CURSOR_LOW);
+    outb(0x3d5, (uint8_t)(pos & 0xff)); 
+    
+    // crtc cursor high
+    outb(0x3d4, CRTC_CURSOR_HIGH);
+    outb(0x3d5, (uint8_t)(pos >> 8 & 0xff));
+}
+
+void toggle_cursor(){
+    outb(0x3d4, CRTC_CURSOR_CONTROL);
+    uint8_t control = inb(0x3d5);
+
+    // outb(0x3d5, control ^ (1 << 6));
+    outb(0x3d5, control ^ 0x20);
+}
+
 void printf(char* str, ...) {
     char current;
 
     // this is probably the worst code ive written
+    // TODO make this work if not using System V ABI
 
     void* args = (uint8_t*)&str+4;
 
@@ -80,32 +102,6 @@ void printf(char* str, ...) {
         loop_end:
             str++;
     }
-
-    // while ((current = *str) != '\0'){
-    //     if(current == '%'){
-    //         str++;
-    //         current = *str;
-
-    //         switch(current){
-    //             case 's':
-    //                 print_str(*((char**)arg));
-    //                 break;
-    //             case 'x':
-    //                 print_byte(*((uint8_t*)arg));
-    //                 break;
-    //             default:
-    //                 write_char(current);
-    //                 break;
-    //         }
-
-    //         arg += 4;
-    //         str++;
-    //         continue;
-    //     }
-        
-    //     write_char(current);
-    //     str++;
-    // }
 }
 
 void print_byte(uint8_t byte){
