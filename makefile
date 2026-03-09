@@ -1,6 +1,6 @@
 
 CC := i686-elf-gcc
-C_FLAGS := -O2 -nostdlib -Wall -ffreestanding -Wextra -I ./src
+C_FLAGS := -O2 -nostdlib -Wall -ffreestanding -Wextra -mgeneral-regs-only -I ./src
 
 ASMC := nasm
 ASM_FLAGS := -f elf32
