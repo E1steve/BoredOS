@@ -1,3 +1,25 @@
+global clear_ints
+; void clear_ints(void)
+clear_ints:
+    push ebp
+    mov ebp, esp
+
+    cli
+
+    pop ebp
+    ret
+
+global set_ints
+; void set_ints(void)
+set_ints:
+    push ebp
+    mov ebp, esp
+
+    sti
+
+    pop ebp
+    ret
+
 
 global inb
 ; void inb(uint16_t port)

@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+void clear_ints(void);
+void set_ints(void);
+
 uint8_t inb(uint16_t port);
 void outb(uint16_t port, uint8_t data);
 
