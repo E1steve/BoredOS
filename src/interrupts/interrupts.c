@@ -1,6 +1,6 @@
 #include "interrupts.h"
-#include "io.h"
-#include "vga.h"
+#include "../io.h"
+#include "../vga.h"
 
 #include <stdint.h>
 

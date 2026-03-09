@@ -26,6 +26,7 @@
 #define MBOOT_TAG_TYPE_EFI64_IH 20
 #define MBOOT_TAG_TYPE_LOAD_BASE_ADDR 21
 
+#include <stdint.h>
 
 typedef struct {
     uint32_t type;
