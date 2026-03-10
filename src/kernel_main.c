@@ -5,6 +5,7 @@
 
 #include "io.h"
 #include "vga.h"
+#include "ps2/kbd/kbd.h"
 #include "multiboot/mboot.h"
 
 void kmain(mboot_tag* mboot_info) {
@@ -13,6 +14,7 @@ void kmain(mboot_tag* mboot_info) {
     reload_segments();
 
     create_idt();
+    kbd_init();
     set_ints();
 
     set_term_color(VGA_WHITE, VGA_BLACK);
