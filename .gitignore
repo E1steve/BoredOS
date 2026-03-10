@@ -58,3 +58,8 @@ dkms.conf
 bin
 iso
 *.iso
+
+# common hidden files
+.vscode
+.idea
+.ccls-cache
