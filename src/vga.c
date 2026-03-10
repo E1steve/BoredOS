@@ -40,7 +40,7 @@ void write_char(char character) {
         cursor_row += 1;
         cursor_col = 0;
 
-        if(cursor_row > buffer_height){
+        if(cursor_row >= buffer_height){
             cursor_row = 0;
         }
     }
