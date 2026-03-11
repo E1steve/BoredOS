@@ -36,20 +36,20 @@ mboot_header:
 
     mboot_header_end:
 
-; section .data
-; gdtr:
-;     dw gdt_end-gdt-1
-;     dq gdt-0xC0000000
-; gdt:
-;     ; null descriptor
-;     dq 0
-;     ; All descriptors are base 0x0 and limit 0xFFFFFF
-;     ; they are also protected mode with page granulatrity
-;     dq 0x00CF9A000000FFFF ; Kernel mode code, access 0x9A
-;     dq 0x00CF92000000FFFF ; Kernel mode data, access 0x92
-;     dq 0x00CFFA000000FFFF ; User mode code, access 0xFA
-;     dq 0x00CFF2000000FFFF ; User mode data, access 0xF2
-; gdt_end:
+section .data
+gdtr:
+    dw gdt_end-gdt-1
+    dq gdt
+gdt:
+    ; null descriptor
+    dq 0
+    ; All descriptors are base 0x0 and limit 0xFFFFFF
+    ; they are also protected mode with page granulatrity
+    dq 0x00CF9A000000FFFF ; Kernel mode code, access 0x9A
+    dq 0x00CF92000000FFFF ; Kernel mode data, access 0x92
+    dq 0x00CFFA000000FFFF ; User mode code, access 0xFA
+    dq 0x00CFF2000000FFFF ; User mode data, access 0xF2
+gdt_end:
 
 section .bss
 ;;; reserve space for the stack
@@ -74,18 +74,6 @@ _start:
 	; for multiboot2 compliant loaders
 	cmp eax, 0x36d76289
 	jne $
-
-	; gdt
-	; lgdt [gdtr-0xC0000000]
-
-	; jmp 0x08:reload
-	; reload:
-    ; 	mov ax, 0x10
-    ; 	mov ds, ax
-    ; 	mov es, ax
-    ; 	mov fs, ax
-    ; 	mov gs, ax
-    ; 	mov ss, ax
 	
 	extern _kernel_start
 	extern _kernel_end
@@ -126,13 +114,27 @@ _start:
 
 section .text
 higher_half:
+
+	;;; un-identity map 1M
 	mov dword [page_directory + 0], 0
 
 	mov ecx, cr3
 	mov cr3, ecx
 
+	;;; load the gdt
+	lgdt [gdtr]
+
+	jmp 0x08:reload
+	reload:
+    	mov ax, 0x10
+    	mov ds, ax
+    	mov es, ax
+    	mov fs, ax
+    	mov gs, ax
+    	mov ss, ax
+
 	mov esp, stack_top
 
-	add ebx, 0xC0000000	
+	add ebx, 0xC0000000
 	push ebx
 	call kmain

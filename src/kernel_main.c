@@ -1,6 +1,5 @@
 #include <stdint.h>
 
-#include "gdt/gdt.h"
 #include "interrupts/interrupts.h"
 
 #include "io.h"
@@ -9,9 +8,6 @@
 #include "multiboot/mboot.h"
 
 void kmain(mboot_tag* mboot_info) {
-
-    create_gdt();
-    reload_segments();
 
     create_idt();
     kbd_init();
