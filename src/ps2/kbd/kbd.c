@@ -49,6 +49,7 @@ static uint8_t scancode[256] = {
     '\'',
     '`',
     '\\',
+    0x0,
     'Z',
     'X',
     'C',
@@ -85,5 +86,10 @@ void keyboard(void* something){
 }
 
 void kbd_init(){
+    outb(0x60, 0xF0);
+    outb(0x60, 2);
+
+    while(inb(0x60) != 0xFA){}
+
     add_int_handler(0x21, (uint32_t)&keyboard, GATE_TYPE_INTERRUPT | GATE_PRESENT | GATE_DPL_KERNEL, 0x8);
 }
