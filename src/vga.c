@@ -8,7 +8,7 @@ static size_t cursor_row;
 static size_t cursor_col;
 static uint8_t color;
 
-static term_char* video_mem = (term_char*)0xb8000;
+static term_char* video_mem = (term_char*)0xC03FF000;
 static uint32_t buffer_width = 80;
 static uint32_t buffer_height = 25;
 
