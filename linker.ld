@@ -4,14 +4,15 @@ SECTIONS
 {
     . = 1M;
     _kernel_start = .;
-    
-    .multiboot.data : {
+
+    .multiboot.data ALIGN (4K) : {
         *(.multiboot.data);
     }
 
-    .multiboot.text : {
+    .multiboot.text ALIGN (4K) : {
         *(.multiboot.text);
     }
+    _multiboot_end = .;
 
     . += 0xC0000000;
     

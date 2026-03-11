@@ -74,43 +74,91 @@ _start:
 	; for multiboot2 compliant loaders
 	cmp eax, 0x36d76289
 	jne $
+
+	mov  esp, stack_top-0xC0000000
+
+	extern _kernel_start
+	mov edi, page_table_1 - 0xC0000000 ; current page table entry
+	mov esi, 0 ; current physical adress
+
+	.get_to_kstart:
+		add esi, 0x1000 ; add 4K to physical adress
+		add edx, 4 ; move to next page entry
+
+		; stop when reached _kernel_start
+		cmp esi, _kernel_start - 0xC0000000
+		jle .get_to_kstart
 	
 	extern _kernel_start
-	extern _kernel_end
+	mov edi, page_table_1 - 0xC0000000 + 0x400
+	mov esi, _kernel_start
 
-	mov edi, page_table_1-0xC0000000
-	mov esi, 0
-	mov ecx, 1023
+	extern _multiboot_end
+	mov eax, _multiboot_end
+	push eax
 
-	entry:
-		cmp esi, _kernel_start
-		jl next
-		cmp esi, _kernel_end-0xC0000000
-		jge end
+	call map_pages
 
+	extern _text_end
+	mov eax, _text_end-0xC0000000
+	push eax
+
+	call map_pages
+
+	extern _rodata_end
+	mov eax, _rodata_end-0xC0000000
+	push eax
+
+	call map_pages
+
+	extern _data_end
+	mov eax, _data_end-0xC0000000
+	push eax
+
+	call map_pages
+
+	extern _bss_end
+	mov eax, _bss_end-0xC0000000
+	push eax
+
+	call map_pages
+
+	;; TODO, this is not a good idea
+	;; This should be somewhere else
+	mov dword [page_table_1 - 0xC0000000 + 1023*4], 0x000B8000 | 0x003
+
+	mov dword [page_directory - 0xC0000000 + 0], page_table_1 - 0xC0000000 + 0x003
+	mov dword [page_directory - 0xC0000000 + 768*4], page_table_1 - 0xC0000000 + 0x003
+
+	mov ecx, page_directory-0xC0000000
+	mov cr3, ecx
+
+	mov ecx, cr0
+	or ecx, 0x80010000
+	mov cr0, ecx
+
+	lea ecx, higher_half
+	jmp ecx
+
+map_pages:
+	push ebp
+	mov ebp, esp
+
+	mov eax, [ebp+8] ; end addr
+
+	.write_pte:
 		mov edx, esi
 		or edx, 0x3
-		mov [edi], edx
-	next:
+		mov dword [edi], edx
 
-		add esi, 4096
+		add esi, 0x1000
 		add edi, 4
-		loop entry
-	end:
-		mov dword [page_table_1 - 0xC0000000 + 1023*4], 0x000B8000 | 0x003
 
-		mov dword [page_directory - 0xC0000000 + 0], page_table_1 - 0xC0000000 + 0x003
-		mov dword [page_directory - 0xC0000000 + 768*4], page_table_1 - 0xC0000000 + 0x003
+		cmp esi, eax
+		jl .write_pte
 
-		mov ecx, page_directory-0xC0000000
-		mov cr3, ecx
-
-		mov ecx, cr0
-		or ecx, 0x80010000
-		mov cr0, ecx
-
-		lea ecx, higher_half
-		jmp ecx
+	pop ebp
+	ret
 
 section .text
 higher_half:
